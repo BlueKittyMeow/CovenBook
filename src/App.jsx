@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Book from './components/Book'
+import BookBasic from './components/BookBasic'
 import './App.css'
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
         <p>An Interactive Technomagic Textbook</p>
       </header>
       <main className="app-main">
-        <Book />
+        <BookBasic />
       </main>
       <footer className="app-footer">
         <p>Based on "The Coven at Devil's Den" by Bluekitty's Sister</p>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reliable Turn.js Test</title>
+  
+  <!-- Load jQuery first -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+  <!-- Multiple CDN sources for Turn.js - more likely one will work -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+  <script>
+    // If Turn.js didn't load from the primary source, try alternatives
+    window.addEventListener('DOMContentLoaded', function() {
+      if (!window.jQuery || !window.jQuery.fn.turn) {
+        console.log('Turn.js not loaded from primary source, trying alternative...');
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/gh/blasten/turn.js/turn.min.js';
+        document.head.appendChild(script);
+        
+        // Check again after this script loads
+        script.onload = function() {
+          if (!window.jQuery.fn.turn) {
+            console.log('Second source failed, trying third source...');
+            var script2 = document.createElement('script');
+            script2.src = 'https://raw.githack.com/blasten/turn.js/master/turn.min.js';
+            document.head.appendChild(script2);
+          }
+        };
+      }
+    });
+  </script>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      text-align: center;
+    }
+    
+    .container {
+      margin: 0 auto;
+      max-width: 800px;
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    #book-container {
+      margin: 40px auto;
+      position: relative;
+      width: 800px;
+      height: 500px;
+      perspective: 1800px;
+    }
+    
+    #book {
+      width: 800px;
+      height: 500px;
+    }
+    
+    #book .page {
+      width: 400px;
+      height: 500px;
+      background-color: white;
+      border: 1px solid #ddd;
+    }
+    
+    #book .hard {
+      background: linear-gradient(to bottom, #563e2f, #7b5941) !important;
+      color: white;
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .page-content {
+      padding: 40px;
+      box-sizing: border-box;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .controls {
+      margin: 20px auto;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background-color: #563e2f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      margin: 0 10px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #7b5941;
+    }
+    
+    #status {
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* Debug panel */
+    #debug-panel {
+      margin: 30px auto;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      max-width: 800px;
+      text-align: left;
+    }
+    
+    .debug-item {
+      margin-bottom: 8px;
+      font-family: monospace;
+    }
+    
+    .success {
+      color: green;
+    }
+    
+    .error {
+      color: red;
+    }
+    
+    .warning {
+      color: orange;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reliable Turn.js Test</h1>
+    
+    <div id="status">Loading book...</div>
+    
+    <div id="book-container">
+      <div id="book">
+        <!-- Pages are added here -->
+        <div class="hard">
+          <div class="page-content">Front Cover</div>
+        </div>
+        <div class="hard">
+          <div class="page-content">Inside Cover</div>
+        </div>
+        
+        <div>
+          <div class="page-content">
+            <h2>Page 1</h2>
+            <p>This is the first page of content.</p>
+          </div>
+        </div>
+        <div>
+          <div class="page-content">
+            <h2>Page 2</h2>
+            <p>This is the second page of content.</p>
+          </div>
+        </div>
+        
+        <div>
+          <div class="page-content">
+            <h2>Page 3</h2>
+            <p>This is the third page of content.</p>
+          </div>
+        </div>
+        <div>
+          <div class="page-content">
+            <h2>Page 4</h2>
+            <p>This is the fourth page of content.</p>
+          </div>
+        </div>
+        
+        <div class="hard">
+          <div class="page-content">Inside Back Cover</div>
+        </div>
+        <div class="hard">
+          <div class="page-content">Back Cover</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button id="prev-btn">Previous</button>
+      <button id="next-btn">Next</button>
+    </div>
+    
+    <div id="debug-panel">
+      <h3>Debug Information</h3>
+      <div id="debug-content"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Debug log function
+    function log(message, type = 'info') {
+      console.log(`[${type.toUpperCase()}] ${message}`);
+      
+      const debugContent = document.getElementById('debug-content');
+      const item = document.createElement('div');
+      item.className = `debug-item ${type}`;
+      item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      debugContent.appendChild(item);
+    }
+    
+    // Update status
+    function updateStatus(message, isError = false) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = isError ? 'error' : 'success';
+      log(message, isError ? 'error' : 'success');
+    }
+    
+    // Initialize book function
+    function initializeBook() {
+      if (!window.jQuery) {
+        log('jQuery is not loaded!', 'error');
+        updateStatus('Failed to load jQuery', true);
+        return;
+      }
+      
+      log(`jQuery ${$.fn.jquery} loaded successfully`, 'success');
+      
+      if (!$.fn.turn) {
+        log('Turn.js is not loaded!', 'error');
+        updateStatus('Failed to load Turn.js', true);
+        return;
+      }
+      
+      log('Turn.js loaded successfully', 'success');
+      
+      try {
+        $('#book').turn({
+          width: 800,
+          height: 500,
+          autoCenter: true,
+          display: 'double',
+          acceleration: true,
+          gradients: true,
+          elevation: 50,
+          when: {
+            turning: function(e, page, pageObj) {
+              log(`Turning to page ${page}`, 'info');
+            },
+            turned: function(e, page) {
+              log(`Now on page ${page}`, 'info');
+              updateStatus(`Book ready - Page ${page}`);
+            }
+          }
+        });
+        
+        log('Book initialized successfully', 'success');
+        updateStatus('Book loaded successfully');
+        
+        // Button handlers
+        $('#prev-btn').on('click', function() {
+          $('#book').turn('previous');
+        });
+        
+        $('#next-btn').on('click', function() {
+          $('#book').turn('next');
+        });
+        
+        // Keyboard navigation
+        $(document).keydown(function(e) {
+          if (e.keyCode == 37) { // left arrow
+            $('#book').turn('previous');
+          } else if (e.keyCode == 39) { // right arrow
+            $('#book').turn('next');
+          }
+        });
+      } catch (error) {
+        log(`Error initializing book: ${error.message}`, 'error');
+        updateStatus(`Error: ${error.message}`, true);
+      }
+    }
+    
+    // Wait for everything to load
+    $(document).ready(function() {
+      log('Document ready', 'info');
+      
+      // Try to initialize after a short delay to ensure scripts are loaded
+      setTimeout(function() {
+        initializeBook();
+      }, 500);
+    });
+  </script>
+</body>
+</html> 

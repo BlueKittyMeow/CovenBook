@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Turn.js Test</title>
+  
+  <!-- jQuery from official CDN -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+  <!-- Turn.js from unpkg CDN - downloading specific version -->
+  <script src="https://unpkg.com/browse/turn.js@1.0.5/turn.js"></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    
+    #book-container {
+      perspective: 1800px;
+      margin: 0 auto 40px;
+      width: 900px;
+      height: 550px;
+      position: relative;
+    }
+    
+    #book {
+      width: 900px;
+      height: 550px;
+      position: relative;
+    }
+    
+    #book div.page {
+      width: 450px;
+      height: 550px;
+      background-color: white;
+      background-size: 100% 100%;
+    }
+    
+    #book div.hard {
+      background-color: #6a3e29;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    
+    .page-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px;
+      box-sizing: border-box;
+      font-size: 20px;
+    }
+    
+    .controls {
+      margin-top: 20px;
+    }
+    
+    button {
+      background-color: #6a3e29;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #845440;
+    }
+    
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    
+    #log {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: left;
+    }
+    
+    .log-entry {
+      margin-bottom: 5px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>Direct Turn.js Test</h1>
+  
+  <div id="status">Initializing Book...</div>
+  
+  <div id="book-container">
+    <div id="book">
+      <!-- Hard Cover -->
+      <div class="hard">
+        <div class="page-content">Book Cover</div>
+      </div>
+      <div class="hard">
+        <div class="page-content">Inside Cover</div>
+      </div>
+      
+      <!-- Content Pages -->
+      <div>
+        <div class="page-content">
+          <h2>Page 1</h2>
+          <p>This is an example page with content.</p>
+        </div>
+      </div>
+      <div>
+        <div class="page-content">
+          <h2>Page 2</h2>
+          <p>This is another example page with content.</p>
+        </div>
+      </div>
+      <div>
+        <div class="page-content">
+          <h2>Page 3</h2>
+          <p>Content for page 3 goes here.</p>
+        </div>
+      </div>
+      <div>
+        <div class="page-content">
+          <h2>Page 4</h2>
+          <p>Content for page 4 goes here.</p>
+        </div>
+      </div>
+      
+      <!-- Back Cover -->
+      <div class="hard">
+        <div class="page-content">Inside Back Cover</div>
+      </div>
+      <div class="hard">
+        <div class="page-content">Back Cover</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <button id="prev">Previous Page</button>
+    <button id="next">Next Page</button>
+  </div>
+  
+  <div id="log">
+    <h3>Debug Log:</h3>
+    <div id="log-content"></div>
+  </div>
+  
+  <script>
+    // Function to add a log entry
+    function addLog(message) {
+      const logContent = document.getElementById('log-content');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContent.appendChild(entry);
+      console.log(message);
+    }
+    
+    // Status updates
+    function updateStatus(message, isError = false) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.style.color = isError ? 'red' : 'green';
+      addLog(message);
+    }
+    
+    // Check if jQuery is loaded
+    addLog("Checking for jQuery...");
+    if (window.jQuery) {
+      addLog(`jQuery ${jQuery.fn.jquery} is available`);
+    } else {
+      addLog("jQuery is NOT available!");
+      updateStatus("Error: jQuery not loaded", true);
+    }
+    
+    // Initialize Turn.js on document ready
+    $(document).ready(function() {
+      addLog("Document ready, checking for Turn.js...");
+      
+      // Give it a moment to ensure all scripts are loaded
+      setTimeout(function() {
+        if ($.fn.turn) {
+          addLog("Turn.js is available, initializing book...");
+          
+          try {
+            // Initialize the book
+            $('#book').turn({
+              width: 900,
+              height: 550,
+              autoCenter: true,
+              display: 'double',
+              acceleration: true,
+              gradients: true,
+              elevation: 50,
+              when: {
+                turning: function(e, page, pages) {
+                  addLog(`Turning to page ${page}`);
+                },
+                turned: function(e, page) {
+                  addLog(`Now on page ${page}`);
+                  updateStatus(`Book initialized - Page ${page}`);
+                }
+              }
+            });
+            
+            // Setup navigation buttons
+            $('#prev').on('click', function() {
+              $('#book').turn('previous');
+            });
+            
+            $('#next').on('click', function() {
+              $('#book').turn('next');
+            });
+            
+            updateStatus("Book initialized successfully!");
+          } catch (error) {
+            addLog(`Error initializing Turn.js: ${error.message}`);
+            updateStatus(`Error initializing book: ${error.message}`, true);
+          }
+        } else {
+          addLog("Turn.js is NOT available!");
+          updateStatus("Error: Turn.js not loaded", true);
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html> 
