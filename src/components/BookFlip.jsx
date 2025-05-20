@@ -79,29 +79,28 @@ const BookFlip = () => {
     }
   ];
 
+  // Adjust dimensions based on container size
+  const updateDimensions = () => {
+    const container = document.querySelector('.book-wrapper');
+    if (!container) return;
+    
+    const containerWidth = container.clientWidth - 170; // Account for nav areas
+    const baseWidth = 462; // Half of the ideal 924px total width
+    const baseHeight = 600;
+    
+    // Calculate appropriate book size based on container width
+    let width = Math.min(baseWidth, containerWidth / 2);
+    let height = (width / baseWidth) * baseHeight;
+    
+    // Ensure minimum size
+    width = Math.max(width, 315);
+    height = Math.max(height, 400);
+    
+    setDimensions({ width, height });
+  };
+
   // Handle window resize
   useEffect(() => {
-    const updateDimensions = () => {
-      // Base dimensions for the book (4:3 aspect ratio)
-      const baseWidth = 462;
-      const baseHeight = 600;
-      
-      // Get container width
-      const container = document.querySelector('.book-wrapper');
-      if (!container) return;
-      
-      const containerWidth = container.clientWidth;
-      
-      // Calculate new dimensions maintaining aspect ratio
-      let newWidth = containerWidth > baseWidth ? baseWidth : containerWidth;
-      let newHeight = (newWidth / baseWidth) * baseHeight;
-      
-      setDimensions({
-        width: newWidth,
-        height: newHeight
-      });
-    };
-
     // Update dimensions on mount and when window resizes
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
@@ -116,16 +115,20 @@ const BookFlip = () => {
     setTotalPages(pages.length);
   }, [pages]);
 
-  // Handle revealing hidden content
-  const revealMagic = (index) => {
-    setShowMagic(prev => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  // Reveal magical content
+  const revealMagic = (index, event) => {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling
+    }
+    setShowMagic(prev => ({...prev, [index]: !prev[index]}));
   };
 
-  // Handle emoji effects
-  const triggerEmojiEffect = (emoji) => {
+  // Create emoji effect
+  const triggerEmojiEffect = (emoji, event) => {
+    if (event) {
+      event.stopPropagation(); // Prevent event bubbling
+    }
+    
     // Create a new effect
     const newEffect = {
       id: Date.now(),
@@ -197,7 +200,8 @@ const BookFlip = () => {
             {page.hasHiddenContent && (
               <div 
                 className={`hidden-content ${showMagic['chapter'] ? 'revealed' : ''}`}
-                onClick={() => revealMagic('chapter')}
+                onClick={(e) => revealMagic('chapter', e)}
+                data-magic-index="chapter"
               >
                 {showMagic['chapter'] ? (
                   <div className="magical-content">
@@ -224,7 +228,8 @@ const BookFlip = () => {
                 <div 
                   key={idx} 
                   className={`equation ${showMagic[`eq-${idx}`] ? 'revealed' : ''}`}
-                  onClick={() => revealMagic(`eq-${idx}`)}
+                  onClick={(e) => revealMagic(`eq-${idx}`, e)}
+                  data-magic-index={`eq-${idx}`}
                 >
                   {showMagic[`eq-${idx}`] ? eq.hidden : eq.visible}
                 </div>
@@ -244,7 +249,7 @@ const BookFlip = () => {
                 <span 
                   key={idx} 
                   className="emoji"
-                  onClick={() => triggerEmojiEffect(emoji)}
+                  onClick={(e) => triggerEmojiEffect(emoji, e)}
                   data-emoji={emoji}
                 >
                   {emoji}
@@ -275,6 +280,17 @@ const BookFlip = () => {
     }
   };
 
+  // Handle click on book navigation areas
+  const handleBookNavigation = (direction) => {
+    if (!book.current) return;
+    
+    if (direction === 'prev' && page > 0) {
+      book.current.pageFlip().flipPrev();
+    } else if (direction === 'next' && page < totalPages - 1) {
+      book.current.pageFlip().flipNext();
+    }
+  };
+
   return (
     <div className="book-container">
       {/* Emoji effects layer */}
@@ -293,6 +309,13 @@ const BookFlip = () => {
       ))}
       
       <div className="book-wrapper">
+        {/* Navigation buttons */}
+        <div 
+          className="book-nav-area book-nav-prev" 
+          onClick={() => handleBookNavigation('prev')}
+          aria-label="Previous page"
+        ></div>
+        
         <HTMLFlipBook
           width={dimensions.width}
           height={dimensions.height}
@@ -310,11 +333,11 @@ const BookFlip = () => {
           usePortrait={true}
           startPage={0}
           drawShadow={true}
-          flippingTime={800}
-          useMouseEvents={true}
+          flippingTime={1200}
+          useMouseEvents={false}
           swipeDistance={30}
           showPageCorners={true}
-          disableFlipByClick={false}
+          disableFlipByClick={true}
         >
           {pages.map((pageData, index) => (
             <div 
@@ -328,6 +351,12 @@ const BookFlip = () => {
             </div>
           ))}
         </HTMLFlipBook>
+        
+        <div 
+          className="book-nav-area book-nav-next" 
+          onClick={() => handleBookNavigation('next')}
+          aria-label="Next page"
+        ></div>
       </div>
       
       <div className="controls">
@@ -347,7 +376,7 @@ const BookFlip = () => {
       </div>
       
       <div className="instructions">
-        Click the left or right edge of the book to turn pages. 
+        Click the left or right side of the book to turn pages. 
         Touch highlighted elements to reveal hidden magical content. 
         Click emojis to see them manifest!
       </div>
