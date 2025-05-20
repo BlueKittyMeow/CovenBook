@@ -1,20 +1,29 @@
+'use strict';
+
 import React, { useRef, useState, useEffect } from 'react';
 import HTMLFlipBook from 'react-pageflip';
 import '../styles/BookFlip.css';
 
+/**
+ * Simplified Book component using react-pageflip
+ */
 const BookFlip = () => {
-  const book = useRef(null);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [emojiEffects, setEmojiEffects] = useState([]);
+  // State
   const [showMagic, setShowMagic] = useState({});
-  const [dimensions, setDimensions] = useState({
-    width: 462,
-    height: 600
-  });
+  const [emojiEffects, setEmojiEffects] = useState([]);
+  // Set initial dimensions for portrait orientation (width: 350, height: 467 for 3:4 ratio)
+  const [dimensions, setDimensions] = useState({ width: 350, height: 467 });
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Refs
+  const book = useRef(null);
+  const containerRef = useRef(null);
 
-  // Book content
+  // Book pages data
   const pages = [
+    // Cover page
     {
       type: 'cover',
       title: 'Modern Applications of Theoretical Science',
@@ -22,9 +31,9 @@ const BookFlip = () => {
       publisher: 'Devil\'s Den High School District',
       year: '2024 Edition'
     },
-    {
-      type: 'blank',
-    },
+    // Blank page
+    { type: 'blank' },
+    // Contents page
     {
       type: 'contents',
       title: 'Table of Contents',
@@ -37,9 +46,9 @@ const BookFlip = () => {
         { name: 'Unit 6: Laboratory Protocols', page: 200 }
       ]
     },
-    {
-      type: 'blank',
-    },
+    // Blank page
+    { type: 'blank' },
+    // Chapter page
     {
       type: 'chapter',
       number: 5,
@@ -48,6 +57,7 @@ const BookFlip = () => {
       hasHiddenContent: true,
       hiddenContent: 'Technomagic represents the intersection of modern technology with ancient arcane principles. When properly aligned, electronic signals can be transmuted into physical manifestations through sympathetic resonance.'
     },
+    // Section page
     {
       type: 'section',
       title: '5.2 Symbolic Representation and Manifestation',
@@ -59,6 +69,7 @@ const BookFlip = () => {
         { visible: 'PV = nRT', hidden: '🌪️ = natural resonance × technoflow' }
       ]
     },
+    // Interactive page
     {
       type: 'interactive',
       title: '5.3 Practical Applications: Digital Symbolism',
@@ -66,6 +77,7 @@ const BookFlip = () => {
       instruction: 'Touch any emoji to observe manifestation properties:',
       emojis: ['✨', '🔮', '⚡', '🌙', '🌊', '🔥']
     },
+    // Notes page
     {
       type: 'notes',
       title: 'Student Notes',
@@ -76,102 +88,150 @@ const BookFlip = () => {
         'DO NOT try the fire emoji indoors!!! disaster in the chem lab',
         'meeting at the den tonight to test more sequences - bring your phone CHARGED'
       ]
+    },
+    // Back cover
+    {
+      type: 'back'
     }
   ];
 
-  // Adjust dimensions based on container size
+  // Animation parameters (consistent for all page turns)
+  const ANIMATION_PARAMS = {
+    corner: "top",
+    duration: 1000,
+    easing: "ease-out"
+  };
+
+  // Specific animation parameters for different page types
+  const getAnimationParams = (fromIndex, toIndex) => {
+    // Use consistent animation parameters for all transitions
+    return ANIMATION_PARAMS;
+  };
+
+  // Page density determination - function to get correct density for consistent animations
+  const getPageDensity = (page, index) => {
+    // The cover and final page are always hard
+    if (index === 0 || index === pages.length - 1) {
+      return "hard";
+    }
+    
+    // Make all pages soft for consistent animations
+    return "soft";
+  };
+
+  // Update dimensions based on the container size
   const updateDimensions = () => {
-    const container = document.querySelector('.book-wrapper');
-    if (!container) return;
+    if (!containerRef.current) return;
+
+    const containerWidth = containerRef.current.clientWidth;
+    const containerHeight = containerRef.current.clientHeight;
     
-    const containerWidth = container.clientWidth - 170; // Account for nav areas
-    const baseWidth = 462; // Half of the ideal 924px total width
-    const baseHeight = 600;
+    // Portrait orientation - height should be greater than width
+    // For a 3:4 ratio, width should be 75% of height
+    const maxHeight = Math.min(containerHeight - 40, 700);
+    const idealWidth = Math.floor(maxHeight * 0.75); // width is 75% of height for 3:4
     
-    // Calculate appropriate book size based on container width
-    let width = Math.min(baseWidth, containerWidth / 2);
-    let height = (width / baseWidth) * baseHeight;
+    let width, height;
     
-    // Ensure minimum size
-    width = Math.max(width, 315);
-    height = Math.max(height, 400);
+    // If the ideal width fits within container width
+    if (idealWidth <= containerWidth - 40) {
+      width = idealWidth;
+      height = maxHeight;
+    } else {
+      // Otherwise, calculate based on available width
+      width = Math.min(containerWidth - 40, 350);
+      height = Math.floor(width * (4/3)); // height is 133% of width for 3:4
+    }
     
+    console.log(`Container: ${containerWidth}x${containerHeight}, Book: ${width}x${height}`);
     setDimensions({ width, height });
   };
 
-  // Handle window resize
-  useEffect(() => {
-    // Update dimensions on mount and when window resizes
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, []);
-
-  // Set total pages after component mounts
-  useEffect(() => {
-    setTotalPages(pages.length);
-  }, [pages]);
-
-  // Reveal magical content
+  // Handle revealing hidden magical content
   const revealMagic = (index, event) => {
-    if (event) {
-      event.stopPropagation(); // Prevent event bubbling
-    }
-    setShowMagic(prev => ({...prev, [index]: !prev[index]}));
+    event?.stopPropagation();
+    setShowMagic(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
-  // Create emoji effect
+  // Handle emoji effects
   const triggerEmojiEffect = (emoji, event) => {
-    if (event) {
-      event.stopPropagation(); // Prevent event bubbling
-    }
+    event?.stopPropagation();
     
     // Create a new effect
     const newEffect = {
       id: Date.now(),
       emoji,
-      left: Math.random() * 70 + 15, // percentage
-      top: Math.random() * 70 + 5,   // percentage
+      left: Math.random() * 70 + 15,
+      top: Math.random() * 70 + 5,
       rotation: Math.random() * 40 - 20,
-      scale: Math.random() * 1.5 + 0.8
+      scale: Math.random() * 1.5 + 0.8,
     };
-    
+
     setEmojiEffects(prev => [...prev, newEffect]);
-    
+
     // Remove effect after animation completes
     setTimeout(() => {
       setEmojiEffects(prev => prev.filter(effect => effect.id !== newEffect.id));
     }, 2000);
   };
 
-  // Get page label (adjust for single vs double view)
-  const getPageLabel = () => {
-    if (page === 0) {
-      return 'Cover';
-    } else {
-      return `Page ${page} of ${totalPages - 1}`;
+  // Simple page navigation handlers
+  const handlePrevPage = () => {
+    if (book.current) {
+      try {
+        const currentIdx = book.current.pageFlip().getCurrentPageIndex();
+        const params = getAnimationParams(currentIdx, currentIdx - 1);
+        book.current.pageFlip().flipPrev(params);
+      } catch (e) {
+        console.error("Error navigating to previous page:", e);
+      }
     }
   };
 
-  // Render different page types
+  const handleNextPage = () => {
+    if (book.current) {
+      try {
+        const currentIdx = book.current.pageFlip().getCurrentPageIndex();
+        const params = getAnimationParams(currentIdx, currentIdx + 1);
+        book.current.pageFlip().flipNext(params);
+      } catch (e) {
+        console.error("Error navigating to next page:", e);
+      }
+    }
+  };
+
+  // Render page content based on page type
   const renderPageContent = (page, index) => {
-    switch(page.type) {
+    switch (page.type) {
       case 'blank':
         return <div className="blank-page"></div>;
         
       case 'cover':
+        // Use a div with inline background image
         return (
-          <div className="cover-page">
-            <div className="title">{page.title}</div>
-            <div className="subtitle">{page.subtitle}</div>
-            <div className="publisher-info">
-              <div>{page.publisher}</div>
-              <div>{page.year}</div>
-            </div>
-          </div>
+          <div 
+            className="cover-page"
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'url("/assets/Cover.png") no-repeat center',
+              backgroundSize: 'contain',
+            }}
+          />
+        );
+      
+      case 'back':
+        // Use a div with inline background image
+        return (
+          <div 
+            className="back-page"
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'url("/assets/back.jpg") no-repeat center',
+              backgroundSize: 'contain',
+            }}
+          />
         );
       
       case 'contents':
@@ -199,11 +259,11 @@ const BookFlip = () => {
             </div>
             {page.hasHiddenContent && (
               <div 
-                className={`hidden-content ${showMagic['chapter'] ? 'revealed' : ''}`}
-                onClick={(e) => revealMagic('chapter', e)}
-                data-magic-index="chapter"
+                className={`hidden-content ${showMagic[`chapter-${index}`] ? 'revealed' : ''}`}
+                onClick={(e) => revealMagic(`chapter-${index}`, e)}
+                data-magic-index={`chapter-${index}`}
               >
-                {showMagic['chapter'] ? (
+                {showMagic[`chapter-${index}`] ? (
                   <div className="magical-content">
                     "{page.hiddenContent}"
                   </div>
@@ -224,14 +284,13 @@ const BookFlip = () => {
             <p className="section-content">{page.content}</p>
             <div className="section-note">{page.note}</div>
             <div className="equation-container">
-              {page.equations.map((eq, idx) => (
+              {page.equations.map((eq, eqIdx) => (
                 <div 
-                  key={idx} 
-                  className={`equation ${showMagic[`eq-${idx}`] ? 'revealed' : ''}`}
-                  onClick={(e) => revealMagic(`eq-${idx}`, e)}
-                  data-magic-index={`eq-${idx}`}
+                  key={eqIdx} 
+                  className={`equation ${showMagic[`eq-${index}-${eqIdx}`] ? 'revealed' : ''}`}
+                  onClick={(e) => revealMagic(`eq-${index}-${eqIdx}`, e)}
                 >
-                  {showMagic[`eq-${idx}`] ? eq.hidden : eq.visible}
+                  {showMagic[`eq-${index}-${eqIdx}`] ? eq.hidden : eq.visible}
                 </div>
               ))}
             </div>
@@ -245,12 +304,11 @@ const BookFlip = () => {
             <p className="interactive-content">{page.content}</p>
             <p className="interactive-instruction">{page.instruction}</p>
             <div className="emoji-container">
-              {page.emojis.map((emoji, idx) => (
+              {page.emojis.map((emoji, emojiIdx) => (
                 <span 
-                  key={idx} 
+                  key={emojiIdx} 
                   className="emoji"
                   onClick={(e) => triggerEmojiEffect(emoji, e)}
-                  data-emoji={emoji}
                 >
                   {emoji}
                 </span>
@@ -264,10 +322,14 @@ const BookFlip = () => {
           <div className="notes-page">
             <h2 className="notes-title">{page.title}</h2>
             <div className="handwritten-notes">
-              {page.handwritten.map((note, idx) => (
-                <div key={idx} className="note" style={{
-                  transform: `rotate(${(idx % 3) - 1}deg)`
-                }}>
+              {page.handwritten.map((note, noteIdx) => (
+                <div 
+                  key={noteIdx} 
+                  className="note"
+                  style={{
+                    transform: `rotate(${(noteIdx % 3) - 1}deg)`
+                  }}
+                >
                   {note}
                 </div>
               ))}
@@ -276,109 +338,156 @@ const BookFlip = () => {
         );
       
       default:
-        return <div>Page content not available</div>;
+        return <div>Page {index + 1}</div>;
     }
   };
 
-  // Handle click on book navigation areas
-  const handleBookNavigation = (direction) => {
-    if (!book.current) return;
+  // Log dimensions changes
+  useEffect(() => {
+    console.log('Dimensions updated:', dimensions);
+  }, [dimensions]);
+
+  // Initialize dimensions and handle window resize
+  useEffect(() => {
+    // Initial dimensions update
+    updateDimensions();
     
-    if (direction === 'prev' && page > 0) {
-      book.current.pageFlip().flipPrev();
-    } else if (direction === 'next' && page < totalPages - 1) {
-      book.current.pageFlip().flipNext();
-    }
-  };
+    const handleResize = () => {
+      updateDimensions();
+    };
+
+    window.addEventListener("resize", handleResize);
+    
+    // Force a dimensions update after a short delay to ensure everything is rendered
+    const timeoutId = setTimeout(() => {
+      updateDimensions();
+    }, 500);
+    
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // Set loading state
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <div className="book-container">
-      {/* Emoji effects layer */}
-      {emojiEffects.map(effect => (
-        <div 
-          key={effect.id}
-          className="emoji-effect"
-          style={{
-            left: `${effect.left}%`,
-            top: `${effect.top}%`,
-            transform: `rotate(${effect.rotation}deg) scale(${effect.scale})`,
-          }}
-        >
-          {effect.emoji}
-        </div>
-      ))}
-      
-      <div className="book-wrapper">
-        {/* Navigation buttons */}
-        <div 
-          className="book-nav-area book-nav-prev" 
-          onClick={() => handleBookNavigation('prev')}
-          aria-label="Previous page"
+      <div className="book-wrapper" ref={containerRef}>
+        {/* Navigation areas */}
+        <div
+          className="book-nav-area book-nav-prev"
+          onClick={handlePrevPage}
         ></div>
-        
+        <div
+          className="book-nav-area book-nav-next"
+          onClick={handleNextPage}
+        ></div>
+
+        {/* Simple loading indicator */}
+        {isLoading && <div className="loading">Loading book...</div>}
+
+        {/* Book component */}
         <HTMLFlipBook
           width={dimensions.width}
           height={dimensions.height}
-          size="stretch"
-          minWidth={315}
-          maxWidth={1000}
-          minHeight={400}
-          maxHeight={1000}
-          maxShadowOpacity={0.7}
-          showCover={true}
+          size="fixed"
+          minWidth={200}
+          maxWidth={500}
+          minHeight={300}
+          maxHeight={800}
+          maxShadowOpacity={0.3}
+          showCover={false}
           mobileScrollSupport={true}
+          useMouseEvents={true}
+          flippingTime={1000}
+          orientation="portrait"
           className="book"
-          onFlip={(e) => setPage(e.data)}
-          ref={book}
+          style={{ 
+            touchAction: "none"
+          }}
+          clickEventForward={true}
           usePortrait={true}
           startPage={0}
           drawShadow={true}
-          flippingTime={1200}
-          useMouseEvents={false}
-          swipeDistance={30}
-          showPageCorners={true}
-          disableFlipByClick={true}
+          ref={book}
+          onFlip={(e) => {
+            setCurrentPage(e.data + 1);
+          }}
+          onInit={(e) => {
+            if (e.data) {
+              setTotalPages(e.data.pages);
+              setIsLoading(false);
+            }
+          }}
+          startZIndex={500}
+          renderOnlyPageLengthChange={false}
         >
-          {pages.map((pageData, index) => (
-            <div 
-              key={index} 
-              className={`page-container ${pageData.type === 'cover' ? 'page-cover' : ''}`}
-              data-density={index === 0 || index === pages.length - 1 ? "hard" : "soft"}
+          {/* Render each page */}
+          {pages.map((page, index) => (
+            <div
+              key={index}
+              className={`page-container page-${index}`}
+              data-density={getPageDensity(page, index)}
+              data-page-number={index}
             >
               <div className="page-content">
-                {renderPageContent(pageData, index)}
+                {renderPageContent(page, index)}
               </div>
             </div>
           ))}
         </HTMLFlipBook>
-        
-        <div 
-          className="book-nav-area book-nav-next" 
-          onClick={() => handleBookNavigation('next')}
-          aria-label="Next page"
-        ></div>
       </div>
-      
+
+      {/* Controls */}
       <div className="controls">
-        <button 
-          onClick={() => book.current.pageFlip().flipPrev()}
-          disabled={page === 0}
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage <= 1}
         >
           Previous
         </button>
-        <span className="page-number">{getPageLabel()}</span>
-        <button 
-          onClick={() => book.current.pageFlip().flipNext()}
-          disabled={page === totalPages - 1}
+        <span className="page-number">
+          {currentPage === 1 ? "Cover" : `Page ${currentPage}`} 
+          {totalPages > 0 ? ` of ${totalPages}` : ""}
+        </span>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage >= totalPages}
         >
           Next
         </button>
       </div>
-      
+
+      {/* Instructions */}
       <div className="instructions">
-        Click the left or right side of the book to turn pages. 
-        Touch highlighted elements to reveal hidden magical content. 
-        Click emojis to see them manifest!
+        Click the left or right side of the book to turn pages. Touch
+        highlighted elements to reveal hidden magical content. Click emojis to
+        see them manifest!
+      </div>
+
+      {/* Emoji effects container */}
+      <div className="emoji-effects-container">
+        {emojiEffects.map((effect) => (
+          <div
+            key={effect.id}
+            className="emoji-effect"
+            style={{
+              left: `${effect.left}%`,
+              top: `${effect.top}%`,
+              transform: `rotate(${effect.rotation}deg) scale(${effect.scale})`,
+            }}
+          >
+            {effect.emoji}
+          </div>
+        ))}
       </div>
     </div>
   );

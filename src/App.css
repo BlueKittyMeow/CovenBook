@@ -1,47 +1,59 @@
 #root {
-  max-width: 1280px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.5rem;
   width: 100%;
+  box-sizing: border-box;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 .app-header {
-  padding: 0.5rem 0 1rem;
+  padding: 0.5rem 0;
   text-align: center;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .app-header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
   color: #563e2f;
 }
 
 .app-header p {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #7b5941;
+  margin: 0;
 }
 
 .app-main {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   padding: 0;
+  width: 100%;
+  overflow: hidden;
+  min-height: 0; /* Critical for flexbox to allow child to shrink */
 }
 
 .app-footer {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   padding: 0.5rem 0;
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #777;
   border-top: 1px solid #eee;
+  flex-shrink: 0;
 }
 
 .logo {
@@ -78,4 +90,42 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Mobile-responsive adjustments */
+@media (max-width: 768px) {
+  #root {
+    padding: 0.25rem;
+  }
+  
+  .app-header {
+    padding: 0.25rem 0;
+  }
+  
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .app-header p {
+    font-size: 0.9rem;
+  }
+  
+  .app-footer {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .app-header p {
+    font-size: 0.8rem;
+  }
+  
+  .app-footer {
+    font-size: 0.7rem;
+  }
 }

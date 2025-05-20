@@ -1,0 +1,664 @@
+/* Responsive Book Component Styles */
+
+/* Main Container */
+.responsive-book-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
+  height: calc(100vh - 150px);
+  min-height: 500px;
+}
+
+/* Book Wrapper */
+.book-wrapper {
+  position: relative;
+  width: 100%;
+  height: 85%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 2000px;
+  margin: 0 auto;
+}
+
+/* Navigation Areas */
+.book-nav-area {
+  position: absolute;
+  top: 0;
+  width: 15%;
+  height: 100%;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.book-nav-area:hover {
+  opacity: 0.2;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.book-nav-prev {
+  left: 0;
+  cursor: w-resize;
+}
+
+.book-nav-next {
+  right: 0;
+  cursor: e-resize;
+}
+
+/* Book Component */
+.book {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transform-style: preserve-3d;
+  background-color: transparent;
+  width: 100%;
+  height: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Page Wrapper */
+.page-wrapper {
+  background-color: #f8f5e6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hard pages (cover and back) */
+.page-wrapper[data-density="hard"] {
+  background-color: transparent !important;
+  overflow: hidden;
+}
+
+/* Page Content */
+.page-content {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
+  position: relative;
+  font-family: "Times New Roman", serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #f8f5e6;
+}
+
+/* Hard pages need transparent background */
+.page-wrapper[data-density="hard"] .page-content {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Loading Indicator */
+.loading {
+  padding: 15px 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  color: #333;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+  gap: 15px;
+  width: 100%;
+}
+
+.controls button {
+  padding: 8px 15px;
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.controls button:hover:not(:disabled) {
+  background-color: #2d3748;
+}
+
+.controls button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Page Types */
+
+/* Cover Page */
+.cover-page {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.cover-image, .back-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cover-content {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 15px;
+  border-radius: 5px;
+  width: 80%;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.publisher-info {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Back Page */
+.back-page {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Blank Page */
+.blank-page {
+  width: 100%;
+  height: 100%;
+  background-color: #f8f5e6;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dbd5bc' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+}
+
+/* Contents Page */
+.contents-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.contents-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  text-decoration: underline;
+}
+
+.contents-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contents-section {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dotted #ccc;
+  padding-bottom: 5px;
+}
+
+.section-name {
+  font-weight: bold;
+}
+
+.section-page {
+  font-weight: normal;
+}
+
+/* Chapter Page */
+.chapter-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.chapter-number {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.chapter-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chapter-content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+/* Hidden Content */
+.hidden-content {
+  background-color: #eee;
+  padding: 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.hidden-content:hover {
+  background-color: #e0e0e0;
+}
+
+.hidden-content.revealed {
+  background-color: #e6f7ff;
+  animation: glow 2s ease-in-out;
+}
+
+.content-placeholder {
+  text-align: center;
+  color: #888;
+}
+
+.reveal-instruction {
+  font-style: italic;
+}
+
+/* Section Page */
+.section-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.section-content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.section-note {
+  font-style: italic;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Equations */
+.equation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.equation {
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.equation:hover {
+  background-color: #e8e8e8;
+}
+
+.equation.revealed {
+  background-color: #e6f7ff;
+  animation: glow 2s ease-in-out;
+  font-size: 24px;
+}
+
+/* Interactive Page */
+.interactive-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: relative;
+}
+
+.interactive-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.interactive-content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.interactive-instruction {
+  font-style: italic;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Emoji Container */
+.emoji-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.emoji {
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.emoji:hover {
+  transform: scale(1.2);
+}
+
+/* Emoji Effects */
+.emoji-effects-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.emoji-effect {
+  position: absolute;
+  font-size: 40px;
+  animation: float 2s ease-in-out forwards;
+  opacity: 0;
+}
+
+@keyframes float {
+  0% { 
+    transform: translateY(0) scale(0) rotate(0deg); 
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { 
+    transform: translateY(-100px) scale(1.5) rotate(20deg); 
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(66, 153, 225, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(66, 153, 225, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(66, 153, 225, 0.2); }
+}
+
+/* Notes Page */
+.notes-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f8f5e6;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+
+.notes-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.handwritten-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: 'Comic Sans MS', cursive;
+}
+
+.note {
+  background-color: rgba(255, 255, 100, 0.3);
+  padding: 10px 15px;
+  transform: rotate(var(--rotation, -1deg));
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.note:nth-child(odd) {
+  --rotation: 1deg;
+  background-color: rgba(255, 220, 100, 0.3);
+}
+
+.note:nth-child(3n) {
+  --rotation: -2deg;
+  background-color: rgba(200, 255, 170, 0.3);
+}
+
+/* Custom Flip Animation Improvements */
+/* These classes ensure proper behavior with react-pageflip */
+.stf__parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  perspective: 1800px;
+  margin: 0 auto;
+}
+
+.stf__wrapper {
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.stf__item {
+  display: none;
+  position: absolute;
+  transform-origin: 0% 50% !important;
+  transform-style: preserve-3d !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  box-sizing: border-box;
+  width: 50%;
+  height: 100%;
+  z-index: 1;
+  left: 0;
+}
+
+.stf__item--visible {
+  display: block;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.stf__item--right {
+  right: 0;
+  left: auto;
+  transform-origin: 100% 50% !important;
+}
+
+/* Blocks containing pages */
+.stf__block {
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.stf__block .page-content {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+}
+
+/* Center the images in the book */
+.cover-page img, .back-page img {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .responsive-book-container {
+    padding: 5px;
+    height: calc(100vh - 150px);
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+  }
+  
+  .page-content {
+    padding: 10px;
+  }
+  
+  .chapter-title {
+    font-size: 24px;
+  }
+  
+  .section-title {
+    font-size: 20px;
+  }
+  
+  .emoji {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-book-container {
+    height: calc(100vh - 120px);
+  }
+  
+  .title {
+    font-size: 18px;
+  }
+  
+  .subtitle {
+    font-size: 14px;
+  }
+  
+  .controls button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .page-number {
+    font-size: 14px;
+  }
+  
+  .book-nav-area {
+    width: 20%;
+  }
+}
+
+/* Even/Odd Page Styles */
+.even-page {
+  background-color: #f8f5e6;
+}
+
+.odd-page {
+  background-color: #f8f5e6;
+}
+
+/* First and last page special treatments */
+.page-wrapper[data-page-number="1"] {
+  background-color: transparent;
+}
+
+.page-wrapper[data-page-number="1"] .page-content,
+.page-wrapper[data-density="hard"] .page-content {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Make sure page content fills the entire page */
+.page-content {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Cover and Back Images - ensure they fill the entire page */
+.cover-image, .back-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+} 
