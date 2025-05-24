@@ -1,0 +1,83 @@
+/* TextbookImage Component Styles */
+
+.textbook-image {
+  margin: 0.5em 0 1em 0;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  max-width: 100%;
+}
+
+/* Text wrapping alignments */
+.textbook-image.left {
+  float: left;
+  margin-right: 1.5em;
+  margin-bottom: 1em;
+}
+
+.textbook-image.right {
+  float: right;
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.textbook-image.center {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  clear: both;
+}
+
+/* Image styling */
+.textbook-image img {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+/* Border styling */
+.textbook-image.bordered img {
+  border: 1px solid #999;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Caption styling */
+.textbook-image .caption {
+  font-size: 0.9em;
+  line-height: 1.3;
+  padding: 0.5em 0.25em;
+  text-align: center;
+  color: #444;
+  font-style: italic;
+}
+
+.textbook-image .figure-number {
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* Clearfix for float behavior */
+.textbook-image::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .textbook-image.left,
+  .textbook-image.right {
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .textbook-image.left,
+  .textbook-image.right {
+    float: none;
+    margin: 1em auto;
+    max-width: 100%;
+    width: 100% !important;
+  }
+} 

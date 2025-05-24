@@ -4,6 +4,18 @@ import '../styles/ResponsiveBook.css';
 // Import Cover and Back images directly
 import CoverImage from '../assets/images/Cover.png';
 import BackImage from '../assets/images/back.jpg';
+// Import the new appendix components
+import AppendixPage from './AppendixPage';
+import TextbookImage from './TextbookImage';
+import EquipmentEntry from './EquipmentEntry';
+import WarningBox from './WarningBox';
+import TechnicalSpecs from './TechnicalSpecs';
+
+// Use existing images as placeholders for equipment images until actual images are created
+// These will be replaced with actual equipment images later
+const StandardEquipmentImage = CoverImage;
+const AdvancedEquipmentImage = CoverImage;
+const RestrictedEquipmentImage = CoverImage;
 
 const ResponsiveBook = () => {
   // References
@@ -40,7 +52,8 @@ const ResponsiveBook = () => {
         { name: 'Unit 3: Advanced Wave Mechanics', page: 68 },
         { name: 'Unit 4: Theoretical Appli█ations of Ener█y', page: 110 },
         { name: 'Unit 5: Technomag█c Principles', page: 144 },
-        { name: 'Unit 6: Laboratory Protocols', page: 200 }
+        { name: 'Unit 6: Laboratory Protocols', page: 200 },
+        { name: 'Appendix B: Equipment Reference', page: 246 }
       ]
     },
     // Blank page
@@ -86,6 +99,34 @@ const ResponsiveBook = () => {
         'meeting at the den tonight to test more sequences - bring your phone CHARGED'
       ]
     },
+    // Appendix Intro Page
+    {
+      type: 'appendix-intro',
+      title: 'Appendix B: Equipment Reference',
+      sectionNumber: 'B',
+      content: 'This reference guide provides specifications and usage guidelines for standard, advanced, and restricted equipment used in technomagic implementation. Equipment is classified by security clearance level and intended application.'
+    },
+    // Standard Equipment Page (B.1)
+    {
+      type: 'appendix-standard',
+      title: 'B.1 Standard Equipment',
+      sectionNumber: 'B.1',
+      content: 'Standard equipment is available to all practitioners with basic certification. These items pose minimal risk when used according to guidelines.'
+    },
+    // Advanced Equipment Page (B.2)
+    {
+      type: 'appendix-advanced',
+      title: 'B.2 Advanced Equipment',
+      sectionNumber: 'B.2',
+      content: 'Advanced equipment requires intermediate certification and supervision during initial usage periods. These items may pose moderate risk if misused.'
+    },
+    // Restricted Equipment Page (B.3)
+    {
+      type: 'appendix-restricted',
+      title: 'B.3 Restricted Equipment',
+      sectionNumber: 'B.3',
+      content: 'Restricted equipment is available only to practitioners with advanced certification and special clearance. These items pose significant risk if misused and must be secured when not in use.'
+    },
     // Back cover
     { type: 'back' }
   ];
@@ -98,31 +139,33 @@ const ResponsiveBook = () => {
     const viewportHeight = window.innerHeight;
     const containerWidth = containerRef.current.clientWidth;
     
-    // Use a 2:3 aspect ratio (standard book proportion)
-    // Mobile-first approach
+    // Use a more natural aspect ratio (4:5 instead of 2:3)
+    // Mobile-first approach with increased padding to prevent content clipping
     let width, height;
     
     if (viewportWidth <= 480) {
-      // Mobile: Use almost full width
-      width = Math.min(containerWidth - 40, 280);
-      height = Math.floor(width * 1.5); // 2:3 aspect ratio
+      // Mobile: Use maximum available width with minimal padding
+      width = Math.min(containerWidth - 30, 320); // Reduce padding from 60 to 30
+      height = Math.floor(width * 1.25); // 4:5 aspect ratio
     } else if (viewportWidth <= 768) {
-      // Tablet: Medium size
-      width = Math.min(containerWidth - 60, 360);
-      height = Math.floor(width * 1.5);
+      // Tablet: Medium size with increased width
+      width = Math.min(containerWidth - 60, 400); // Increase max width from 340 to 400
+      height = Math.floor(width * 1.25);
     } else {
-      // Desktop: Larger but still comfortable
-      width = Math.min(containerWidth - 100, 420);
-      height = Math.floor(width * 1.5);
+      // Desktop: Larger but still comfortable with generous padding
+      width = Math.min(containerWidth - 80, 460); // Increase max width from 380 to 460
+      height = Math.floor(width * 1.25);
     }
     
-    // Ensure height doesn't exceed viewport height
-    if (height > viewportHeight - 180) {
-      height = viewportHeight - 180;
-      width = Math.floor(height / 1.5);
+    // Ensure height doesn't exceed viewport height with more appropriate margins
+    if (height > viewportHeight - 150) {  // Reduced from 220 to 150 for more space
+      height = viewportHeight - 150;
+      width = Math.floor(height / 1.25);
     }
     
     console.log(`Setting book dimensions: ${width}x${height}`);
+    // Set CSS variable for the book width that our corner click areas can use
+    document.documentElement.style.setProperty('--book-width', `${width}px`);
     setDimensions({ width, height });
   };
 
@@ -159,6 +202,17 @@ const ResponsiveBook = () => {
 
   const handleNextPage = () => {
     if (bookRef.current && currentPage < totalPages - 1) {
+      bookRef.current.pageFlip().flipNext();
+    }
+  };
+
+  // Enhanced navigation handlers with validation
+  const handleNavClick = (direction) => {
+    if (!bookRef.current) return;
+    
+    if (direction === 'prev' && currentPage > 0) {
+      bookRef.current.pageFlip().flipPrev();
+    } else if (direction === 'next' && currentPage < totalPages - 1) {
       bookRef.current.pageFlip().flipNext();
     }
   };
@@ -221,6 +275,7 @@ const ResponsiveBook = () => {
                 </div>
               ))}
             </div>
+            <div className="page-spacer"></div>
           </div>
         );
         
@@ -242,6 +297,7 @@ const ResponsiveBook = () => {
                 }
               </div>
             )}
+            <div className="page-spacer"></div>
           </div>
         );
         
@@ -262,6 +318,7 @@ const ResponsiveBook = () => {
                 </div>
               ))}
             </div>
+            <div className="page-spacer"></div>
           </div>
         );
         
@@ -297,6 +354,7 @@ const ResponsiveBook = () => {
                 </div>
               ))}
             </div>
+            <div className="page-spacer"></div>
           </div>
         );
         
@@ -308,8 +366,120 @@ const ResponsiveBook = () => {
               {page.handwritten.map((note, idx) => (
                 <p key={idx} className="note">{note}</p>
               ))}
+              <div className="notes-spacer"></div>
             </div>
           </div>
+        );
+        
+      // New appendix page rendering
+      case 'appendix-intro':
+        return (
+          <AppendixPage sectionNumber={page.sectionNumber} title={page.title}>
+            <p>{page.content}</p>
+            
+            <WarningBox type="note">
+              <p>Equipment classification is determined by the Technomagic Safety Board under regulation 42-C.</p>
+            </WarningBox>
+            
+            <TextbookImage 
+              src={StandardEquipmentImage}
+              alt="Equipment Storage Cabinet"
+              caption="The standard equipment storage cabinet in Laboratory 3B"
+              align="center"
+              width="70%"
+              numbered={true}
+              figureNumber="B.1"
+            />
+          </AppendixPage>
+        );
+        
+      case 'appendix-standard':
+        return (
+          <AppendixPage sectionNumber={page.sectionNumber} title={page.title}>
+            <p>{page.content}</p>
+            
+            <EquipmentEntry
+              name="Digital Resonance Amplifier"
+              designation="TM-101-S"
+              imageSrc={StandardEquipmentImage}
+              imageCaption="Standard Digital Resonance Amplifier"
+              securityLevel="standard"
+              figureNumber="B.2"
+            >
+              <p>The Digital Resonance Amplifier enhances the manifestation properties of digital symbols by providing a stable resonance field. Standard model TM-101-S is suitable for classroom demonstrations and basic practice.</p>
+              
+              <TechnicalSpecs title="Technical Specifications" specs={[
+                { label: "Power Source", value: "USB-C (5V/2A)" },
+                { label: "Resonance Range", value: "2.4GHz - 5.0GHz" },
+                { label: "Field Radius", value: "3 meters maximum" },
+                { label: "Certification", value: "Basic (Level 1)" }
+              ]} />
+              
+              <WarningBox type="caution">
+                <p>Keep device at least 30cm from sensitive electronics. Do not operate near medical equipment.</p>
+              </WarningBox>
+            </EquipmentEntry>
+          </AppendixPage>
+        );
+        
+      case 'appendix-advanced':
+        return (
+          <AppendixPage sectionNumber={page.sectionNumber} title={page.title}>
+            <p>{page.content}</p>
+            
+            <EquipmentEntry
+              name="Symbolic Manifestation Enhancer"
+              designation="TM-205-A"
+              imageSrc={AdvancedEquipmentImage}
+              imageCaption="Advanced Symbolic Manifestation Enhancer with protective case"
+              securityLevel="advanced"
+              figureNumber="B.3"
+            >
+              <p>The Symbolic Manifestation Enhancer dramatically increases the physicality of manifested digital symbols, allowing for prolonged duration and enhanced stability of effects. This device requires intermediate certification and should be operated under supervision until practitioner demonstrates competence.</p>
+              
+              <TechnicalSpecs title="Technical Specifications" specs={[
+                { label: "Power Source", value: "Lithium battery (12V)" },
+                { label: "Enhancement Factor", value: "7x standard baseline" },
+                { label: "Field Radius", value: "8 meters maximum" },
+                { label: "Certification", value: "Intermediate (Level 2)" }
+              ]} />
+              
+              <WarningBox type="warning">
+                <p>Device generates significant heat during operation. Allow proper ventilation and cooling periods between uses. Do not operate for more than 15 minutes continuously.</p>
+              </WarningBox>
+            </EquipmentEntry>
+          </AppendixPage>
+        );
+        
+      case 'appendix-restricted':
+        return (
+          <AppendixPage sectionNumber={page.sectionNumber} title={page.title}>
+            <p>{page.content}</p>
+            
+            <EquipmentEntry
+              name="Multi-Symbol Synchronization Array"
+              designation="TM-307-R"
+              imageSrc={RestrictedEquipmentImage}
+              imageCaption="Restricted Multi-Symbol Synchronization Array (shown in secure configuration)"
+              securityLevel="restricted"
+              figureNumber="B.4"
+            >
+              <p>The Multi-Symbol Synchronization Array enables the coordinated manifestation of multiple digital symbols simultaneously, creating composite effects with <span className="redacted">amplified resonance patterns</span>. This device requires advanced certification and special clearance.</p>
+              
+              <p>Potential applications include <span className="redacted">atmospheric manipulation</span>, <span className="redacted">barrier generation</span>, and <span className="redacted">long-distance symbol projection</span>.</p>
+              
+              <TechnicalSpecs title="Technical Specifications" specs={[
+                { label: "Power Source", value: "Dedicated circuit (110V/10A)" },
+                { label: "Sync Capacity", value: "Up to 12 symbols simultaneously" },
+                { label: "Field Radius", value: "██ meters maximum" },
+                { label: "Certification", value: "Advanced (Level 3)" }
+              ]} />
+              
+              <WarningBox type="danger">
+                <p>Improper use may result in <span className="redacted">uncontrolled manifestations</span> and potential <span className="redacted">reality instability</span>. Always operate with a spotter. Report any anomalies immediately to faculty supervisor.</p>
+              </WarningBox>
+            </EquipmentEntry>
+          </AppendixPage>
         );
         
       case 'back':
@@ -330,15 +500,25 @@ const ResponsiveBook = () => {
   };
 
   return (
-    <div className="responsive-book-container" ref={containerRef}>
+    <div className="book-container" ref={containerRef}>
       {isLoading ? (
         <div className="loading">Loading book...</div>
       ) : (
         <>
           <div className="book-wrapper">
             {/* Navigation touch areas */}
-            <div className="book-nav-area book-nav-prev" onClick={handlePrevPage}></div>
-            <div className="book-nav-area book-nav-next" onClick={handleNextPage}></div>
+            <div className="book-nav-area prev" onClick={() => handleNavClick('prev')}>
+              <span className="nav-indicator">←</span>
+            </div>
+            <div className="book-nav-area next" onClick={() => handleNavClick('next')}>
+              <span className="nav-indicator">→</span>
+            </div>
+            
+            {/* Corner click areas */}
+            <div className="corner-click-area top-left" onClick={() => handleNavClick('prev')}></div>
+            <div className="corner-click-area bottom-left" onClick={() => handleNavClick('prev')}></div>
+            <div className="corner-click-area top-right" onClick={() => handleNavClick('next')}></div>
+            <div className="corner-click-area bottom-right" onClick={() => handleNavClick('next')}></div>
             
             {/* Book component */}
             <HTMLFlipBook
@@ -350,14 +530,14 @@ const ResponsiveBook = () => {
               maxWidth={800}
               minHeight={420}
               maxHeight={1200}
-              maxShadowOpacity={0.5}
+              maxShadowOpacity={0.2}
               showCover={true}
               mobileScrollSupport={true}
               onFlip={handlePageFlip}
               className="book"
               startPage={0}
               drawShadow={true}
-              flippingTime={1000}
+              flippingTime={400}
               usePortrait={false}
               startZIndex={0}
               autoSize={false}
@@ -385,7 +565,7 @@ const ResponsiveBook = () => {
           {/* Page controls */}
           <div className="controls">
             <button 
-              onClick={handlePrevPage} 
+              onClick={() => handleNavClick('prev')} 
               disabled={currentPage === 0}
             >
               Previous
@@ -394,7 +574,7 @@ const ResponsiveBook = () => {
               {currentPage + 1} / {totalPages}
             </div>
             <button 
-              onClick={handleNextPage} 
+              onClick={() => handleNavClick('next')} 
               disabled={currentPage === totalPages - 1}
             >
               Next

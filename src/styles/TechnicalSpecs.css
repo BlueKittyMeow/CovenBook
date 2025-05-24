@@ -1,0 +1,102 @@
+/* TechnicalSpecs Component Styles */
+
+.technical-specs {
+  margin: 1.5em 0;
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #f8f8f8;
+  clear: both;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Title styling */
+.specs-title {
+  font-weight: bold;
+  background-color: #eee;
+  padding: 0.6em 1em;
+  border-bottom: 1px solid #ddd;
+  font-size: 1em;
+  color: #444;
+  font-variant: small-caps;
+}
+
+/* Content styling */
+.specs-content {
+  padding: 0.6em 0;
+}
+
+/* Table styling */
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.spec-row {
+  border-bottom: 1px dotted #e5e5e5;
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-label {
+  padding: 0.4em 1em;
+  font-weight: bold;
+  color: #555;
+  width: 40%;
+  vertical-align: top;
+}
+
+.spec-value {
+  padding: 0.4em 1em;
+  color: #333;
+  width: 60%;
+  vertical-align: top;
+}
+
+/* Alternating row colors */
+.spec-row:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .specs-table {
+    font-size: 0.85em;
+  }
+  
+  .spec-label, 
+  .spec-value {
+    padding: 0.4em 0.8em;
+  }
+}
+
+@media (max-width: 480px) {
+  .technical-specs {
+    margin: 1.2em 0;
+  }
+  
+  .specs-title {
+    font-size: 0.9em;
+  }
+  
+  .specs-table {
+    font-size: 0.8em;
+  }
+  
+  .spec-label, 
+  .spec-value {
+    padding: 0.4em 0.6em;
+  }
+  
+  .spec-label {
+    width: 35%;
+  }
+  
+  .spec-value {
+    width: 65%;
+  }
+} 
