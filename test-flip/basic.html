@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turn.js Basic Test</title>
+  
+  <!-- jQuery is required for Turn.js -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <!-- Turn.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/turn.js@1.0.5/turn.min.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .container {
+      width: 800px;
+      height: 500px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    #flipbook {
+      width: 800px;
+      height: 500px;
+    }
+    
+    #flipbook .page {
+      background-color: #fff;
+      border: 1px solid #dedede;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    #flipbook .hard {
+      background-color: #563e2f;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #flipbook .page-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+    }
+    
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #563e2f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #7b5941;
+    }
+    
+    h1 {
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Basic Turn.js Test</h1>
+  
+  <div class="container">
+    <div id="flipbook">
+      <!-- Hard Cover -->
+      <div class="hard">
+        <div class="page-content">Front Cover</div>
+      </div>
+      
+      <!-- Inside Front Cover -->
+      <div class="hard">
+        <div class="page-content">Inside Front Cover</div>
+      </div>
+      
+      <!-- Content Pages -->
+      <div>
+        <div class="page-content">Page 1</div>
+      </div>
+      <div>
+        <div class="page-content">Page 2</div>
+      </div>
+      <div>
+        <div class="page-content">Page 3</div>
+      </div>
+      <div>
+        <div class="page-content">Page 4</div>
+      </div>
+      
+      <!-- Inside Back Cover -->
+      <div class="hard">
+        <div class="page-content">Inside Back Cover</div>
+      </div>
+      
+      <!-- Back Cover -->
+      <div class="hard">
+        <div class="page-content">Back Cover</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="controls">
+    <button id="prev">Previous</button>
+    <button id="next">Next</button>
+  </div>
+  
+  <script>
+    // Wait for the DOM to be fully loaded
+    $(document).ready(function() {
+      // Initialize Turn.js
+      $("#flipbook").turn({
+        width: 800,
+        height: 500,
+        autoCenter: true,
+        display: 'double',
+        acceleration: true,
+        gradients: true,
+        elevation: 50,
+        when: {
+          turning: function(event, page, pageObj) {
+            console.log('Turning to page: ' + page);
+          },
+          turned: function(event, page, pageObj) {
+            console.log('Now on page: ' + page);
+          }
+        }
+      });
+      
+      // Button handlers
+      $('#prev').click(function() {
+        $('#flipbook').turn('previous');
+      });
+      
+      $('#next').click(function() {
+        $('#flipbook').turn('next');
+      });
+      
+      // Keyboard navigation
+      $(document).keydown(function(e) {
+        if (e.keyCode == 37) {
+          $('#flipbook').turn('previous');
+        } else if (e.keyCode == 39) {
+          $('#flipbook').turn('next');
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

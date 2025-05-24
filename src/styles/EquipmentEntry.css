@@ -1,0 +1,107 @@
+/* EquipmentEntry Component Styles */
+
+.equipment-entry {
+  margin-bottom: 2em;
+  position: relative;
+  padding: 0.5em 0;
+  page-break-inside: avoid;
+}
+
+/* Equipment header */
+.equipment-header {
+  margin-bottom: 1em;
+}
+
+.equipment-name {
+  font-size: 1.25em;
+  margin: 0 0 0.25em 0;
+  color: #222;
+  font-weight: bold;
+}
+
+.equipment-designation {
+  font-size: 0.95em;
+  font-family: monospace;
+  color: #555;
+  margin-bottom: 0.5em;
+}
+
+/* Equipment description */
+.equipment-description {
+  line-height: 1.6;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.equipment-description p {
+  margin: 0 0 1em 0;
+}
+
+.equipment-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Security level styling */
+.equipment-entry.security-level-standard {
+  /* Default styling */
+}
+
+.equipment-entry.security-level-advanced {
+  background-color: rgba(255, 255, 200, 0.15);
+  border-left: 3px solid #cca;
+  padding-left: 0.8em;
+}
+
+.equipment-entry.security-level-restricted {
+  background-color: rgba(255, 220, 220, 0.15);
+  border-left: 3px solid #c99;
+  padding-left: 0.8em;
+}
+
+.security-level-restricted .equipment-name,
+.security-level-restricted .equipment-designation {
+  color: #933;
+}
+
+/* Entry separator */
+.entry-separator {
+  margin: 2em 0 0 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #ddd 20%, #ddd 80%, transparent);
+  clear: both;
+}
+
+/* Clearfix for proper floating behavior */
+.equipment-entry::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Redacted content styling */
+.redacted {
+  display: inline-block;
+  background-color: #000;
+  color: transparent;
+  border-radius: 2px;
+  user-select: none;
+  position: relative;
+  margin: 0 2px;
+}
+
+.redacted:hover {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .equipment-entry {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .equipment-name {
+    font-size: 1.1em;
+  }
+} 

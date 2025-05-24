@@ -1,0 +1,537 @@
+/* Book Container */
+.book-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 600px;
+}
+
+/* Book Wrapper */
+.book-wrapper {
+  position: relative;
+  perspective: 1800px;
+  width: 100%;
+  height: 700px;
+  margin-bottom: 30px;
+}
+
+/* Navigation Areas */
+.book-nav-area {
+  position: absolute;
+  top: 0;
+  width: 20%;
+  height: 100%;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.book-nav-area:hover {
+  opacity: 0.3;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.book-nav-prev {
+  left: 0;
+  cursor: w-resize;
+}
+
+.book-nav-next {
+  right: 0;
+  cursor: e-resize;
+}
+
+/* Book */
+.book {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  transform-style: preserve-3d;
+}
+
+/* Enhanced page transition styles */
+.book .--transition {
+  transition: transform 1s ease !important;
+}
+
+/* Book pages */
+.page-container {
+  background-color: #f8f5e6;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* Use consistent transition for all pages */
+  transition: transform 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  transform-style: preserve-3d;
+  /* Prevent transparency issues */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Ensure content is opaque */
+  opacity: 1 !important;
+  /* Disable overflow to prevent cutting */
+  overflow: visible;
+}
+
+/* Special style for cover container to preserve image during turn */
+.page-container.page-0, 
+.page-container:last-child {
+  overflow: visible;
+  transform-style: preserve-3d;
+  background-color: transparent;
+}
+
+/* Special style for hard pages - adjusted for better animations */
+.page-container[data-density="hard"] {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  /* Match behavior of successful middle animations */
+  transform-origin: 0% 50% !important;
+  transition: transform 1s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Special style for soft pages */
+.page-container[data-density="soft"] {
+  transform-origin: 0% 50%;
+}
+
+/* Fix for the page flip animation to ensure consistent behavior */
+.stf__parent {
+  transform-style: preserve-3d;
+}
+
+.stf__wrapper {
+  perspective: 2000px;
+  transform-style: preserve-3d;
+}
+
+/* Critical fix for content to move with page animation */
+.stf__item {
+  transform-origin: 0% 50% !important;
+  transform-style: preserve-3d !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  opacity: 1 !important;
+  overflow: visible !important;
+}
+
+.stf__block {
+  transform-style: preserve-3d !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: visible !important; /* Critical for animations */
+}
+
+/* Ensure page content moves with page */
+.page-content {
+  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Times New Roman", serif;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23dbd5bc' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  position: relative;
+  z-index: 1;
+  background-color: #f8f5e6; /* Ensure background is opaque */
+}
+
+/* Remove background for cover and back pages */
+.cover-page .page-content,
+.back-page .page-content {
+  background: none;
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Loading indicator */
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 20px;
+}
+
+.controls button {
+  padding: 8px 15px;
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+}
+
+.controls button:hover:not(:disabled) {
+  background-color: #2d3748;
+}
+
+.controls button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-size: 16px;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Instructions */
+.instructions {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  max-width: 600px;
+  margin: 20px auto 0;
+}
+
+/* Emoji Effects */
+.emoji-effects-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.emoji-effect {
+  position: absolute;
+  font-size: 2rem;
+  animation: float 2s ease-out forwards;
+}
+
+@keyframes float {
+  0% { opacity: 0; transform: translateY(0) rotate(0) scale(0.5); }
+  10% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-100px) rotate(10deg) scale(1.5); }
+}
+
+/* Page types */
+.blank-page {
+  width: 100%;
+  height: 100%;
+  background-color: #f8f5e6;
+}
+
+/* Simplified cover and back page styles */
+.cover-page, .back-page {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  background-color: transparent !important;
+  /* Ensure 3D transformations work properly */
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Remove all img styles since we're using background images */
+.cover-page img, .back-page img {
+  display: none;
+}
+
+/* Hide pseudo elements */
+.cover-page::before, .back-page::before {
+  display: none;
+}
+
+/* Special overrides for first and last pages */
+.page-container.page-0, 
+.page-container:last-child,
+.page-container.page-0 .page-content, 
+.page-container:last-child .page-content {
+  background-color: transparent !important;
+  overflow: visible !important;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 60px;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 18px;
+  margin-bottom: 40px;
+  opacity: 0.9;
+}
+
+.publisher-info {
+  margin-bottom: 40px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* Contents page */
+.contents-page {
+  padding: 20px;
+}
+
+.contents-title {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 30px;
+  color: #3a2a1d;
+}
+
+.contents-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contents-section {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 1px dotted #ccc;
+}
+
+/* Chapter page */
+.chapter-page {
+  padding: 20px;
+}
+
+.chapter-number {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.chapter-title {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: #3a2a1d;
+}
+
+.chapter-content {
+  color: #cc0000;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.hidden-content {
+  margin-top: 30px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.hidden-content.revealed {
+  border-color: #9c7bb9;
+  background-color: #f5f0ff;
+}
+
+.content-placeholder {
+  text-align: center;
+  color: #aaa;
+}
+
+.magical-content {
+  color: #6a3093;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* Section page */
+.section-page {
+  padding: 20px;
+}
+
+.section-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #3a2a1d;
+}
+
+.section-content {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.section-note {
+  font-style: italic;
+  color: #9c7bb9;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.equation-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.equation {
+  padding: 10px;
+  text-align: center;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.equation.revealed {
+  background-color: #f5f0ff;
+  color: #6a3093;
+}
+
+/* Interactive page */
+.interactive-page {
+  padding: 20px;
+}
+
+.interactive-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #3a2a1d;
+}
+
+.interactive-content {
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.interactive-instruction {
+  font-weight: 500;
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.emoji-container {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  font-size: 30px;
+}
+
+.emoji {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.emoji:hover {
+  transform: scale(1.2);
+}
+
+/* Notes page */
+.notes-page {
+  padding: 20px;
+}
+
+.notes-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #3a2a1d;
+}
+
+.handwritten-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.note {
+  padding: 10px 15px;
+  background-color: #fffacd;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'Caveat', cursive, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* Back page - added new style */
+.back-page img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.back-page::before {
+  display: none;
+}
+
+/* Force all pages to use the proper aspect ratio */
+.page-container,
+.stf__block,
+.stf__item {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Critical fix for react-pageflip internals */
+.stf__wrapper .stf__block {
+  position: absolute !important;
+  overflow: visible !important;
+  transform-style: preserve-3d !important;
+  /* Ensure transparency */
+  background-color: transparent !important;
+}
+
+.stf__wrapper .stf__item {
+  position: absolute !important;
+  transform-style: preserve-3d !important;
+  overflow: visible !important;
+  /* Ensure transparency */
+  background-color: transparent !important;
+}
+
+/* Special override for cover pages */
+.stf__wrapper .page-0,
+.stf__wrapper .page-0 .stf__item,
+.stf__wrapper .page-0 .stf__block,
+.stf__wrapper .page-0 .page-content {
+  background-color: transparent !important;
+  overflow: visible !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+/* Style for the first and last pages */
+.page-0 .page-content,
+.page-container:last-child .page-content {
+  padding: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* Page content modifications */
+.page-container[data-density="hard"] .page-content {
+  transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  background-color: transparent;
+} 

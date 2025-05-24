@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PageFlip.js Test</title>
+  
+  <!-- St-PageFlip.js library (a modern alternative to Turn.js) -->
+  <script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #563e2f;
+      margin-bottom: 20px;
+    }
+    
+    /* Book container */
+    #book {
+      margin: 0 auto;
+      touch-action: none;
+      background-color: #d0d0d0;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      display: none; /* Will be shown once initialized */
+    }
+    
+    /* Pages */
+    .page {
+      background-color: white;
+      box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.15);
+      color: #333;
+    }
+    
+    .page-content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+    
+    /* Hard cover */
+    .page.--hard {
+      background: linear-gradient(to bottom, #563e2f, #7b5941);
+      color: white;
+      background-size: cover;
+      font-weight: bold;
+    }
+    
+    .page-cover {
+      font-size: 24px;
+      text-align: center;
+    }
+    
+    /* Controls */
+    .controls {
+      margin-top: 30px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+    
+    button {
+      background-color: #563e2f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #7b5941;
+    }
+    
+    .page-number {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    /* Loading message */
+    #loading {
+      font-size: 18px;
+      color: #666;
+      margin: 40px 0;
+    }
+    
+    /* Debug log */
+    #debug-log {
+      margin-top: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f8f8f8;
+      width: 100%;
+      max-width: 800px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .log-entry {
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PageFlip.js Test</h1>
+    
+    <div id="loading">Loading book...</div>
+    
+    <div id="book">
+      <!-- Pages will be added dynamically -->
+    </div>
+    
+    <div class="page-number">
+      <span id="current-page">0</span> of <span id="total-pages">0</span>
+    </div>
+    
+    <div class="controls">
+      <button id="prev-btn">Previous</button>
+      <button id="next-btn">Next</button>
+    </div>
+    
+    <div id="debug-log">
+      <h3>Debug Log:</h3>
+      <div id="log-content"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Book pages data
+    const pages = [
+      {
+        type: 'cover',
+        title: 'Modern Applications of Theoretical Science',
+        subtitle: 'Advanced Physics and Chemistry',
+        publisher: 'Devil\'s Den High School District',
+        year: '2024 Edition'
+      },
+      {
+        type: 'blank'
+      },
+      {
+        type: 'contents',
+        title: 'Table of Contents',
+        sections: [
+          { name: 'Unit 1: Fundamentals of Energy Transfer', page: 4 },
+          { name: 'Unit 2: Subatomic Particle Behavior', page: 36 },
+          { name: 'Unit 3: Advanced Wave Mechanics', page: 68 },
+          { name: 'Unit 4: Theoretical Appli█ations of Ener█y', page: 110 },
+          { name: 'Unit 5: Technomag█c Principles', page: 144 },
+          { name: 'Unit 6: Laboratory Protocols', page: 200 }
+        ]
+      },
+      {
+        type: 'blank'
+      },
+      {
+        type: 'chapter',
+        number: 5,
+        title: 'Technomagic Principles',
+        content: 'This chapter has been removed from the curriculum per school board decision #458-B.',
+        hiddenContent: 'Technomagic represents the intersection of modern technology with ancient arcane principles. When properly aligned, electronic signals can be transmuted into physical manifestations through sympathetic resonance.'
+      },
+      {
+        type: 'section',
+        title: '5.2 Symbolic Representation and Manifestation',
+        content: 'The use of standardized symbolic language enables consistent results across varied practitioner skill levels. Modern computing devices provide an ideal medium for symbolic transfer.',
+        note: 'try touching the equations below',
+        equations: [
+          { visible: 'E = mc²', hidden: '🔥 = manifestation coefficient × clarity²' },
+          { visible: 'F = ma', hidden: '💧 = magical amplitude × attunement' },
+          { visible: 'PV = nRT', hidden: '🌪️ = natural resonance × technoflow' }
+        ]
+      },
+      {
+        type: 'interactive',
+        title: '5.3 Practical Applications: Digital Symbolism',
+        content: 'Contemporary symbolic language includes digital ideograms ("emojis") which have proven exceptionally effective as conduits for technomagic manifestation.',
+        instruction: 'Touch any emoji to observe manifestation properties:',
+        emojis: ['✨', '🔮', '⚡', '🌙', '🌊', '🔥']
+      },
+      {
+        type: 'notes',
+        title: 'Student Notes',
+        handwritten: [
+          'tried the emoji thing with Maddie & Kyle yesterday. IT WORKED!!',
+          'apparently complex sequences create stronger effects',
+          'Mr. Peterson totally knows about this stuff - saw him using 🔮🌙 combo after school',
+          'DO NOT try the fire emoji indoors!!! disaster in the chem lab',
+          'meeting at the den tonight to test more sequences - bring your phone CHARGED'
+        ]
+      },
+      {
+        type: 'blank'
+      }
+    ];
+    
+    // Logging function
+    function log(message) {
+      const logContent = document.getElementById('log-content');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logContent.appendChild(entry);
+      logContent.scrollTop = logContent.scrollHeight;
+      console.log(message);
+    }
+    
+    // Create HTML for each page
+    function createPageHTML(page, index) {
+      let html = '';
+      const isHard = index === 0 || index === pages.length - 1;
+      const className = isHard ? 'page --hard' : 'page';
+      
+      switch (page.type) {
+        case 'cover':
+          html = `
+            <div class="${className}">
+              <div class="page-content page-cover">
+                <h1>${page.title}</h1>
+                <h2>${page.subtitle}</h2>
+                <div class="publisher-info">
+                  <p>${page.publisher}</p>
+                  <p>${page.year}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'blank':
+          html = `<div class="${className}"><div class="page-content"></div></div>`;
+          break;
+          
+        case 'contents':
+          html = `
+            <div class="${className}">
+              <div class="page-content">
+                <h2>${page.title}</h2>
+                <div class="contents-sections">
+                  ${page.sections.map(section => `
+                    <div class="contents-section">
+                      <span>${section.name}</span>
+                      <span>p. ${section.page}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'chapter':
+          html = `
+            <div class="${className}">
+              <div class="page-content">
+                <div class="chapter-number">Chapter ${page.number}</div>
+                <h2>${page.title}</h2>
+                <div class="chapter-content">${page.content}</div>
+                <div class="hidden-content" data-page="${index}">
+                  <div class="content-placeholder">[Touch here if you can see this note]</div>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'section':
+          html = `
+            <div class="${className}">
+              <div class="page-content">
+                <h2>${page.title}</h2>
+                <p>${page.content}</p>
+                <div class="section-note">${page.note}</div>
+                <div class="equation-container">
+                  ${page.equations.map((eq, idx) => `
+                    <div class="equation" data-equation="${idx}" data-page="${index}">
+                      ${eq.visible}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'interactive':
+          html = `
+            <div class="${className}">
+              <div class="page-content">
+                <h2>${page.title}</h2>
+                <p>${page.content}</p>
+                <p class="interactive-instruction">${page.instruction}</p>
+                <div class="emoji-container">
+                  ${page.emojis.map(emoji => `
+                    <span class="emoji" data-emoji="${emoji}">${emoji}</span>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        case 'notes':
+          html = `
+            <div class="${className}">
+              <div class="page-content">
+                <h2>${page.title}</h2>
+                <div class="handwritten-notes">
+                  ${page.handwritten.map((note, idx) => `
+                    <div class="note" style="transform: rotate(${(idx % 3) - 1}deg)">
+                      ${note}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+          
+        default:
+          html = `<div class="${className}"><div class="page-content"></div></div>`;
+      }
+      
+      return html;
+    }
+    
+    // Initialize PageFlip
+    document.addEventListener('DOMContentLoaded', function() {
+      log('DOM loaded, checking for PageFlip...');
+      
+      // Check if PageFlip is available
+      if (typeof PageFlip === 'undefined') {
+        log('PageFlip library not loaded!');
+        document.getElementById('loading').textContent = 'Error: PageFlip library not available.';
+        return;
+      }
+      
+      log('PageFlip library detected, creating pages...');
+      
+      // Create book HTML
+      const bookElement = document.getElementById('book');
+      let pagesHTML = '';
+      
+      pages.forEach((page, index) => {
+        pagesHTML += createPageHTML(page, index);
+      });
+      
+      bookElement.innerHTML = pagesHTML;
+      bookElement.style.display = 'block';
+      
+      log('Pages created, initializing PageFlip...');
+      
+      try {
+        // Initialize PageFlip
+        const pageFlip = new PageFlip(bookElement, {
+          width: 400,  // Page width
+          height: 600, // Page height
+          size: 'stretch',
+          maxShadowOpacity: 0.5,
+          showCover: true,
+          useMouseEvents: true,
+          flippingTime: 1000,
+          autoSize: true,
+          renderMode: 'canvas',
+          startPage: 1,
+          drawShadow: true
+        });
+        
+        // Initialize pages
+        pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+        
+        // Update page numbers
+        document.getElementById('total-pages').textContent = pageFlip.getPageCount();
+        document.getElementById('current-page').textContent = pageFlip.getCurrentPageIndex() + 1;
+        
+        // Hide loading
+        document.getElementById('loading').style.display = 'none';
+        
+        // Event listeners
+        pageFlip.on('flip', (e) => {
+          document.getElementById('current-page').textContent = e.data + 1;
+          log(`Flipped to page ${e.data + 1}`);
+        });
+        
+        // Navigation buttons
+        document.getElementById('prev-btn').addEventListener('click', () => {
+          pageFlip.flipPrev();
+        });
+        
+        document.getElementById('next-btn').addEventListener('click', () => {
+          pageFlip.flipNext();
+        });
+        
+        log('PageFlip initialized successfully.');
+      } catch (error) {
+        log(`Error initializing PageFlip: ${error.message}`);
+        document.getElementById('loading').textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html> 

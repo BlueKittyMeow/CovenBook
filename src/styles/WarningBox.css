@@ -1,0 +1,105 @@
+/* WarningBox Component Styles */
+
+.warning-box {
+  margin: 1.5em 0;
+  padding: 1em;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  position: relative;
+  clear: both;
+  font-size: 0.95em;
+}
+
+/* Warning header */
+.warning-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.7em;
+  font-weight: bold;
+}
+
+.warning-icon {
+  margin-right: 0.6em;
+  font-size: 1.2em;
+}
+
+.warning-title {
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+}
+
+/* Warning content */
+.warning-content {
+  line-height: 1.5;
+}
+
+.warning-content p {
+  margin: 0 0 0.7em 0;
+}
+
+.warning-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Warning type styles */
+.warning-box.warning {
+  background-color: #fff7e6;
+  border-color: #ffe0b2;
+}
+
+.warning-box.warning .warning-title {
+  color: #c07600;
+}
+
+.warning-box.caution {
+  background-color: #f5f5f5;
+  border-color: #ddd;
+}
+
+.warning-box.caution .warning-title {
+  color: #555;
+}
+
+.warning-box.note {
+  background-color: #e8f4f8;
+  border-color: #b3e5fc;
+}
+
+.warning-box.note .warning-title {
+  color: #0277bd;
+}
+
+.warning-box.danger {
+  background-color: #fdebeb;
+  border-color: #ffcdd2;
+}
+
+.warning-box.danger .warning-title {
+  color: #c62828;
+}
+
+/* Clearfix for floating elements */
+.warning-box::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .warning-box {
+    padding: 0.8em;
+  }
+}
+
+@media (max-width: 480px) {
+  .warning-box {
+    padding: 0.7em;
+    font-size: 0.9em;
+  }
+  
+  .warning-title {
+    font-size: 1em;
+  }
+} 
